@@ -80,7 +80,7 @@ def setup_logger(data_path, name='getMappings', level=logging.DEBUG):
     terminal_handler.setFormatter(logging.Formatter("[%(levelname)s] %(asctime)s : %(message)s"))
     terminal_handler.setLevel(logging.DEBUG)
 
-    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler = logging.FileHandler(log_path, mode='a')
     file_handler.setFormatter(logging.Formatter("[%(levelname)s] %(asctime)s : %(message)s"))
     file_handler.setLevel(logging.DEBUG)
 
