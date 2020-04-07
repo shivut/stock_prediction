@@ -5,6 +5,7 @@ import csv
 from get_mappings import setup_logger
 import json
 
+param_files = ["company_code_mapping.json", "sectorwise_com.json", "sector_key_map.json"]
 
 def get_mappings_path():
 
