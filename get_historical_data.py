@@ -1,50 +1,8 @@
 import urllib.request
+from utils_extraction import validate_and_get_mappings, setup_logger
 import os
 import requests
 import csv
-from get_mappings import setup_logger
-import json
-
-param_files = ["company_code_mapping.json", "sectorwise_com.json", "sector_key_map.json"]
-
-def get_mappings_path():
-
-    file_path = input('Please enter the path of metrics or enter "No" to exit: \n')
-
-    while file_path.upper() != 'NO':
-
-        if os.path.exists(file_path):
-            print("checking for the parameters file")
-
-            for eachFile in param_files:
-                fl = os.path.join(file_path, eachFile)
-                if os.path.isfile(fl):
-                    temp = 0
-                    try:
-                        with open(fl) as json_file:
-                            json.load(json_file)
-                    except json.decoder.JSONDecodeError:
-                        print("Not a valid json file")
-                    except:
-                        print("Something went wrong horribly..!!")
-                    else:
-                        temp = 1
-                    finally:
-                        if not temp:
-                            return 0
-
-                else:
-                    print("couldn't find all the mappings")
-                    return 0
-            else:
-                return file_path
-
-        else:
-            file_path = input('Path not found... Enter the valid path or NO to exit: \n')
-    else:
-        print("exiting")
-
-    return 0
 
 
 def convert_misc_data_format(data):
@@ -63,8 +21,8 @@ def get_stock_data(sectorwise_com, company_code_mapping, path, logger):
 
         if value:
 
-            if not os.path.exists(os.path.join(path, key)):
-                os.makedirs(os.path.join(path, key))
+            if not os.path.exists(os.path.join(path, 'historical_data', key)):
+                os.makedirs(os.path.join(path, 'historical_data', key))
 
             for each_com in value:
                 code = company_code_mapping.get(each_com)
@@ -80,8 +38,9 @@ def get_stock_data(sectorwise_com, company_code_mapping, path, logger):
                     data_file = urllib.request.urlopen(ip_ad)
                     line = data_file.readline()
 
-                    while line:
-                        with open(os.path.join(path, key, each_com + '.csv'), 'ab') as file:
+                    with open(os.path.join(path, 'historical_data', key, each_com + '.csv'), 'wb') as file:
+
+                        while line:
                             file.write(line)
                             line = data_file.readline()
 
@@ -94,7 +53,7 @@ def get_stock_data(sectorwise_com, company_code_mapping, path, logger):
                     if json_data.status_code == 200:
                         result_dict = json_data.json()
                         result_keys = result_dict.keys()
-                        write_file = open(os.path.join(path, key, each_com + '.csv'), 'w')
+                        write_file = open(os.path.join(path, 'historical_data', key, each_com + '.csv'), 'w')
                         writer = csv.writer(write_file)
 
                         if "g1" in result_keys and result_dict['g1']:
@@ -132,25 +91,15 @@ def get_stock_data(sectorwise_com, company_code_mapping, path, logger):
 
 if __name__ == '__main__':
 
-    param_files = ["company_code_mapping.json", "sectorwise_com.json", "sector_key_map.json"]
+    mapping_path, mapping_obj = validate_and_get_mappings()
 
-    param_path = get_mappings_path()
+    if mapping_path:
+        logger_obj = setup_logger(os.path.join(mapping_path, 'historical_data'))
 
-    if param_path:
-        logger_obj = setup_logger(param_path)
-
-        file_handler = []
-
-        for each_file in param_files:
-            file_handler.append(json.load(open(each_file)))
-
-        is_success = get_stock_data(file_handler[1], file_handler[0], param_path, logger_obj)
+        is_success = get_stock_data(mapping_obj["sectorwise_com"], mapping_obj["company_code_mapping"], mapping_path, logger_obj)
 
         if is_success:
             logger_obj.debug("Completed the job successfully")
-
-        for each_file in file_handler:
-            each_file.close()
 
     else:
         print("Everything doesn't seems to be fine")
