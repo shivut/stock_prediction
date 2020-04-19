@@ -8,8 +8,9 @@ def get_yearly_report_statement(sectorwise_com, company_code_mapping, path, logg
         logger.debug(" **************** Downloading the data for the sector **************** " + str(each_sector))
 
         if each_sector_companies:
-            if not os.path.exists(os.path.join(path, "yearly_report", each_sector)):
-                os.makedirs(os.path.join(path, "yearly_report", each_sector))
+            sector_path = os.path.join(path, "yearly_report", each_sector)
+            if not os.path.exists(sector_path):
+                os.makedirs(sector_path)
 
             for each_com in each_sector_companies:
                 logger.debug("getting the yearly statement for " + each_com)
@@ -19,7 +20,7 @@ def get_yearly_report_statement(sectorwise_com, company_code_mapping, path, logg
                     each_division_table_data = get_financial_data(each_com.replace(" ", ""), company_code_mapping.get(each_com), "yearly", each_division)
 
                     if each_division_table_data:
-                        csv_writer(os.path.join(path, "yearly_report", each_sector, each_com + "_" + str(each_division) + ".csv"), each_division_table_data)
+                        csv_writer(os.path.join(sector_path, each_com + "_" + str(each_division) + ".csv"), each_division_table_data)
                     else:
                         break
 
