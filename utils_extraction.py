@@ -87,7 +87,7 @@ def validate_and_get_mappings():
 
 
 def setup_logger(data_path, name='getMappings', level=logging.DEBUG):
-    log_path = os.path.join(data_path, 'logs')
+    log_path = os.path.join(str(data_path), 'logs')
 
     if not os.path.exists(log_path):
         os.makedirs(log_path)
