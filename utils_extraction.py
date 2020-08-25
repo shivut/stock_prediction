@@ -135,6 +135,7 @@ def get_economic_times_mappings():
 
                 for i in b:
                     mappings[i.text] = i.a.get("href")
+                print(mappings)
 
     return mappings
 

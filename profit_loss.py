@@ -4,6 +4,14 @@ import requests
 import json
 from get_historical_data import get_mappings_path
 from get_mappings import setup_logger
+import csv
+
+
+def csv_writer(file_name, data):
+    fl = open(file_name, 'w')
+    csvwriter = csv.writer(fl)
+    csvwriter.writerows(data)
+    fl.close()
 
 
 def get_balance_sheet(sectorwise_com, company_code_mapping, path, logger):
@@ -12,11 +20,11 @@ def get_balance_sheet(sectorwise_com, company_code_mapping, path, logger):
         logger.debug(" **************** Downloading the data for the sector **************** " + str(each_sector))
 
         if each_sector_companies:
-            if not os.path.exists(os.path.join(path, each_sector)):
-                os.makedirs(os.path.join(path, each_sector))
+            if not os.path.exists(os.path.join(path, "profit-loss", each_sector)):
+                os.makedirs(os.path.join(path, "profit-loss", each_sector))
 
             for each_com in each_sector_companies:
-                logger.debug("getting the balance sheet for " + each_com)
+                logger.debug("getting the profit-loss statement for " + each_com)
 
                 for each_division in range(1, 6):
 
@@ -27,13 +35,14 @@ def get_balance_sheet(sectorwise_com, company_code_mapping, path, logger):
                     table_obj = soup_obj.find_all(class_="mctable1")
 
                     if table_obj:
+                        final_data = []
 
-                        with open(os.path.join(path, each_sector, each_com + "_" + str(each_division) + '.txt'), 'w')\
-                                as fl:
-                            for i in table_obj[0].select('tr'):
-                                for k in i.find_all('td'):
-                                    print(k.text, end='|', file=fl)
-                                print('\n', file=fl)
+                        for i in table_obj[0].select('tr'):
+                            table_data = []
+                            for k in i.find_all('td'):
+                                table_data.append(k.text.strip())
+                            final_data.append(table_data)
+                        csv_writer(os.path.join(path, "profit-loss", each_sector ,each_com + "_" + str(each_division) + ".csv"), final_data)
                     else:
                         break
 

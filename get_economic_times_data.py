@@ -1,13 +1,12 @@
 from utils_extraction import validate_and_get_mappings, setup_logger, get_economic_times_mappings, csv_writer, get_data_economic_times
 import sys
 import os
-
+import json
 metrics = {"capital structure": "capitalstructure",
            "profit and loss": "profitandlose",
            "cash flow": "cashflow",
            "balance sheet": "balancesheet",
            "yearly report": "yearly",
-           "capital structute": "capitalstructure",
            "share holding pattern": "shareholding"
            }
 
@@ -39,7 +38,11 @@ if __name__ == '__main__':
     mapping_path, _ = validate_and_get_mappings()
 
     logger = setup_logger(mapping_path)
-    mappings = get_economic_times_mappings()
+#    mappings = get_economic_times_mappings()
+    fl = open("/home/shiva/predict_stock/code/economic_times.json")
+    mappings = json.load(fl)
+    fl.close()
+
 
     if not os.path.exists(os.path.join(mapping_path, "Economic_times", metric)):
         os.makedirs(os.path.join(mapping_path, "Economic_times", metric))

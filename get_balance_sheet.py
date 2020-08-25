@@ -4,6 +4,7 @@ from utils_extraction import csv_writer, get_financial_data, setup_logger, valid
 
 def get_balance_sheet(sectorwise_com, company_code_mapping, path, logger):
 
+
     for each_sector, each_sector_companies in sectorwise_com.items():
         logger.debug(" **************** Downloading the data for the sector **************** " + str(each_sector))
 
